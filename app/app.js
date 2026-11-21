@@ -60,7 +60,10 @@ async function render() {
   document.querySelectorAll('[data-view]').forEach(el=>el.classList.toggle('active',el.dataset.view===view));
   if(view==='ledger')ledger();
   else {
-    const module=view==='matrix' ? await import('./matrix.js') : view==='stages' ? await import('./stages.js') : await import('./risks.js');
+    let module;
+    if(view==='matrix')module=await import('./matrix.js');
+    else if(view==='stages')module=await import('./stages.js');
+    else module=await import('./risks.js');
     $('view').innerHTML=module.render(trophies,{rich,escape,label});
     $('view').querySelectorAll('[data-trophy]').forEach(el=>el.onclick=()=>{selected=Number(el.dataset.trophy);view='ledger';render()});
   }
