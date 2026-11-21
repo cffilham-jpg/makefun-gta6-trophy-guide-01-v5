@@ -1,6 +1,6 @@
 // Persistent journal: saved trophies, counters, notes, spoiler seals and portable backups.
 import { sources, cited, sourceIds } from './sources.js';
-const trophies = (await (await fetch('data/trophies.json')).json()).trophies;
+const trophies = (await (await fetch('./data/trophies.json')).json()).trophies;
 const KEY = 'leonida-ledger-v5';
 const blank = () => ({earned:[], counts:{}, notes:{}, spoilers:true});
 let journal;
@@ -26,7 +26,7 @@ function summary() {
 }
 function audit() {
   const steps=trophies.flatMap(t=>t.steps), multi=steps.filter(s=>sourceIds(s).length>=2).length;
-  const sites=new Set(sources.filter(s=>s.id!==1).map(s=>new URL(s.url).hostname.replace('www.',''))).size;
+  const sites=new Set(sources.filter(s=>s.id!==1).map(s=>s.url.split('/')[2].replace(/^www\./,''))).size;
   const records=trophies.filter(t=>t.name&&t.description&&t.grade).length;
   const grades=['platinum','gold','silver','bronze'].map(g=>`${trophies.filter(t=>t.grade===g).length}${g[0].toUpperCase()}`).join(' · ');
   const facts=[[`${records}/${trophies.length}`,'official records'],[grades,`${trophies.filter(t=>t.hidden).length} hidden`],[`${steps.filter(s=>sourceIds(s).length).length}/${steps.length}`,'steps cited'],[`${trophies.filter(t=>sourceIds(t.guide).length).length}/${trophies.length}`,'cited answers'],[multi,'steps with 2+ cites'],[sources.length,`sources · ${sites} sites`],[`${trophies.filter(t=>t.stage&&t.confidence).length}/${trophies.length}`,'stage + confidence'],[trophies.filter(t=>t.missable.level==='possibly').length,'possibly missable'],[`${trophies.filter(t=>t.missable.level==='watch').length} risk · ${trophies.filter(t=>t.confidence==='unconfirmed').length}`,'unknown triggers'],[trophies.reduce((n,t)=>n+(t.disputes?.length||0),0),'two-sided disputes']];
